@@ -2,7 +2,6 @@ package net.kuleasycode.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -12,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import net.kuleasycode.entity.RoleEntity;
 import net.kuleasycode.entity.UserEntity;
@@ -24,21 +24,22 @@ public class UserServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Optional<UserEntity> userEntity = userRepository.findById(userId);
-        if (!userEntity.isPresent()) {
-            throw new UsernameNotFoundException("Invalid username or password.");
+    public UserDetails loadUserByUsername(String userId) {
+    	UserEntity userEntity = userRepository.findByUserNameAndEnabled(userId);
+        if (StringUtils.isEmpty(userEntity)) {
+            throw new UsernameNotFoundException("Invalid username or password or not online.");
         }
-		return new org.springframework.security.core.userdetails.User(userEntity.get().getUserName(),
-				userEntity.get().getPassword(), getAuthority(userEntity));
+        //org.springframework.security.core.userdetails.User là một implement của UserDetails gồm 3 tham số username password và grantedAuthority
+		return new org.springframework.security.core.userdetails.User(userEntity.getUserName(),
+				userEntity.getPassword(), getAuthority(userEntity));
     }
 
-    private List<SimpleGrantedAuthority> getAuthority(Optional<UserEntity> userEntity) {
+    private List<SimpleGrantedAuthority> getAuthority(UserEntity userEntity) {
     	List<SimpleGrantedAuthority> result = new ArrayList<>();
-    	if (userEntity.get().getRoleEntities().isEmpty()) {
+    	if (userEntity.getRoleEntities().isEmpty()) {
     		throw new UsernameNotFoundException("user invalid");
     	}
-    	for (RoleEntity role : userEntity.get().getRoleEntities()) {
+    	for (RoleEntity role : userEntity.getRoleEntities()) {
     		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getRoleId());
     		result.add(authority);
 		}	

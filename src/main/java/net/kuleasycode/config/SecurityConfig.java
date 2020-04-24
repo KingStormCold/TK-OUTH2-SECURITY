@@ -23,12 +23,12 @@ import org.springframework.web.filter.CorsFilter;
 
 
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableWebSecurity//thuộc spring security, quản lý các user, kích hoạt spring security với spring boot or mvc
+@EnableGlobalMethodSecurity(prePostEnabled = true)// để hỗ trợ chạy dc các "#oauth2.hasScope('eligible_dsa_web') OR hasAuthority('ROLE_ADMIN')"
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Resource(name = "userService")
-    private UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;//check user dùng có trong db hk sau nếu có sẽ lấy các roles
     
     //5
     @Override
@@ -49,6 +49,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //10
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+    	//HttpSecurity là đối tượng chính của spring security, tương tự như Builder pattern
+    	//authorizeRequests(): khai báo đường dẫn của request
+    	//permitAll() cho phép tất cả user dc truy cập
+    	//nếu ta đã dùng csrf thì mặc định sẽ có thêm CSRF token, nên hk cần cấu hình thêm gì nữa
         http
                 .csrf().disable()
                 .anonymous().disable()

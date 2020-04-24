@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
 @Configuration
-@EnableAuthorizationServer
+@EnableAuthorizationServer//authorization sẽ chịu trách nhiệm về quản lý các access token, thuộc spring security ouath2
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
 	@Autowired
