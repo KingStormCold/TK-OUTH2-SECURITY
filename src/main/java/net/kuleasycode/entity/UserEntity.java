@@ -1,16 +1,16 @@
 package net.kuleasycode.entity;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 
 @Entity
@@ -49,8 +49,9 @@ public class UserEntity {
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private boolean enabled = true;
 	
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "userOauth")
-	private List<RoleEntity> roleEntities;
+	@ManyToMany(mappedBy = "userOauth")
+	@Fetch(value=FetchMode.SELECT)
+	private Set<RoleEntity> rolesOauth;
 
 	public String getUserName() {
 		return userName;
@@ -74,10 +75,6 @@ public class UserEntity {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 
 	public String getEmail() {
@@ -132,44 +129,15 @@ public class UserEntity {
 		return enabled;
 	}
 
-	public List<RoleEntity> getRoleEntities() {
-		return roleEntities;
-	}
-
-	public void setRoleEntities(List<RoleEntity> roleEntities) {
-		this.roleEntities = roleEntities;
-	}
-
-	public UserEntity() {
-	}
-
-	public UserEntity(String userName, String password, String fullName, String email, String phone, Date createdDate,
-			Date updatedDate, String createdBy, String updatedBy, boolean enabled) {
-		this.userName = userName;
-		this.password = password;
-		this.fullName = fullName;
-		this.email = email;
-		this.phone = phone;
-		this.createdDate = createdDate;
-		this.updatedDate = updatedDate;
-		this.createdBy = createdBy;
-		this.updatedBy = updatedBy;
+	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 
-	public UserEntity(String userName, String password, String fullName, String email, String phone, Date createdDate,
-			Date updatedDate, String createdBy, String updatedBy, boolean enabled, List<RoleEntity> roleEntities) {
-		this.userName = userName;
-		this.password = password;
-		this.fullName = fullName;
-		this.email = email;
-		this.phone = phone;
-		this.createdDate = createdDate;
-		this.updatedDate = updatedDate;
-		this.createdBy = createdBy;
-		this.updatedBy = updatedBy;
-		this.enabled = enabled;
-		this.roleEntities = roleEntities;
+	public Set<RoleEntity> getRolesOauth() {
+		return rolesOauth;
 	}
-	
+
+	public void setRolesOauth(Set<RoleEntity> rolesOauth) {
+		this.rolesOauth = rolesOauth;
+	}
 }

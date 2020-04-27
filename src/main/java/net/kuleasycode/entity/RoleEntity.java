@@ -1,13 +1,17 @@
 package net.kuleasycode.entity;
 
-import javax.persistence.CascadeType;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "role_entity")
@@ -20,16 +24,14 @@ public class RoleEntity {
 	@Column(name = "desciption")
 	private String desciption;
 	
-	@Column(name = "user_name")
-	private String userName;
-	
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "user_name", insertable = false, nullable = false, updatable = false)
-	private UserEntity userOauth;
-
-	public String getDesciption() {
-		return desciption;
-	}
+	@ManyToMany
+	@JoinTable(
+		name = "user_role", 
+		joinColumns = @JoinColumn(name = "role_id"),
+		inverseJoinColumns = @JoinColumn(name = "user_name")
+	)
+	@Fetch(value=FetchMode.SELECT)
+	private Set<UserEntity> userOauth;
 
 	public String getRoleId() {
 		return roleId;
@@ -39,40 +41,19 @@ public class RoleEntity {
 		this.roleId = roleId;
 	}
 
+	public String getDesciption() {
+		return desciption;
+	}
+
 	public void setDesciption(String desciption) {
 		this.desciption = desciption;
 	}
 
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public UserEntity getUserOauth() {
+	public Set<UserEntity> getUserOauth() {
 		return userOauth;
 	}
 
-	public void setUserOauth(UserEntity userOauth) {
+	public void setUserOauth(Set<UserEntity> userOauth) {
 		this.userOauth = userOauth;
 	}
-
-	public RoleEntity() {
-	}
-
-	public RoleEntity(String roleId, String desciption, String userName) {
-		this.roleId = roleId;
-		this.desciption = desciption;
-		this.userName = userName;
-	}
-
-	public RoleEntity(String roleId, String desciption, String userName, UserEntity userOauth) {
-		this.roleId = roleId;
-		this.desciption = desciption;
-		this.userName = userName;
-		this.userOauth = userOauth;
-	}
-
 }

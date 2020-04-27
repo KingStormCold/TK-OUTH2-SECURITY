@@ -2,6 +2,7 @@ package net.kuleasycode.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -15,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import net.kuleasycode.entity.RoleEntity;
 import net.kuleasycode.entity.UserEntity;
+import net.kuleasycode.repository.RoleRepository;
 import net.kuleasycode.repository.UserRepository;
 
 @Service(value = "userService")
@@ -23,7 +25,10 @@ public class UserServiceImpl implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
+    
+    @Autowired
+    private RoleRepository roleRepository;
+    
     public UserDetails loadUserByUsername(String userId) {
     	UserEntity userEntity = userRepository.findByUserNameAndEnabled(userId);
         if (StringUtils.isEmpty(userEntity)) {
@@ -36,27 +41,22 @@ public class UserServiceImpl implements UserDetailsService {
 
     private List<SimpleGrantedAuthority> getAuthority(UserEntity userEntity) {
     	List<SimpleGrantedAuthority> result = new ArrayList<>();
-    	if (userEntity.getRoleEntities().isEmpty()) {
-    		throw new UsernameNotFoundException("user invalid");
-    	}
-    	for (RoleEntity role : userEntity.getRoleEntities()) {
-    		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getRoleId());
+    	// using query native
+//    	Set<RoleEntity> entities = roleRepository.findByUserName(userEntity.getUserName());
+//    	for (RoleEntity roleEntity : entities) {
+//    		if (userEntity.getRolesOauth().isEmpty()) {
+//    			throw new UsernameNotFoundException("user invalid");
+//    		}
+//    		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleEntity.getRoleId()); 
+//    		result.add(authority);
+//    	}
+    	for (RoleEntity roleEntity : userEntity.getRolesOauth()) {
+    		if (userEntity.getRolesOauth().isEmpty()) {
+    			throw new UsernameNotFoundException("user invalid");
+    		}
+    		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleEntity.getRoleId()); 
     		result.add(authority);
-		}	
-        return result;
+    	}
+    	return result;
     }
-
-    public List<UserEntity> findAll() {
-        List<UserEntity> list = new ArrayList<>();
-        userRepository.findAll().iterator().forEachRemaining(list::add);
-        return list;
-    }
-
-    public void delete(String userName) {
-    	userRepository.deleteById(userName);
-    }
-
-	public UserEntity save(UserEntity user) {
-		return userRepository.save(user);
-	}
 }
